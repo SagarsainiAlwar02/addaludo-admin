@@ -1,24 +1,18 @@
 import axios from "axios";
 
-const BASE_URL = "https://api.addaludo.com/api";
-
-console.log("ADMIN API BASE URL:", BASE_URL);
-
 const API = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "https://api.addaludo.com/api",
 });
 
-API.interceptors.request.use((config) => {
+// 🔐 Token auto attach
+API.interceptors.request.use((req) => {
   const token = localStorage.getItem("adminToken");
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    req.headers.Authorization = `Bearer ${token}`;
   }
 
-  return config;
+  return req;
 });
 
 export default API;
