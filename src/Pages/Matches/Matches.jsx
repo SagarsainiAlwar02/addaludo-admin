@@ -45,15 +45,13 @@ const Matches = () => {
 
     return matches.filter((m) => {
       const statusOk = tab === "total" || getStatusGroup(m.status) === tab;
-
       const creatorPhone = getUserPhone(m.createdBy);
       const opponentPhone = getUserPhone(m.opponent);
 
       const mobileOk =
         !mobile ||
         String(creatorPhone).includes(mobile) ||
-        String(opponentPhone).includes(mobile) ||
-        m.players?.some((p) => String(p.phone || p.mobile || "").includes(mobile));
+        String(opponentPhone).includes(mobile);
 
       return statusOk && mobileOk;
     });
@@ -73,6 +71,46 @@ const Matches = () => {
     });
   };
 
+  const decideWinner = async (match, user, label) => {
+    try {
+      if (!user?._id) {
+        alert(`${label} user missing hai`);
+        return;
+      }
+
+      const ok = window.confirm(`${label} ko winner banana hai?`);
+      if (!ok) return;
+
+      await API.patch(`/admin/battles/approve/${match._id}`, {
+        winnerId: user._id,
+        adminNote: `${label} marked winner by admin`,
+      });
+
+      alert(`${label} winner set ho gaya`);
+      setSelectedMatch(null);
+      fetchMatches();
+    } catch (err) {
+      alert(err.response?.data?.msg || "Winner set failed");
+    }
+  };
+
+  const cancelMatch = async (match) => {
+    try {
+      const ok = window.confirm("Is match ko cancel karke dono players ko refund karna hai?");
+      if (!ok) return;
+
+      await API.patch(`/admin/battles/reject/${match._id}`, {
+        adminNote: "Cancelled by admin from pending match view",
+      });
+
+      alert("Match cancel/refund ho gaya");
+      setSelectedMatch(null);
+      fetchMatches();
+    } catch (err) {
+      alert(err.response?.data?.msg || "Cancel failed");
+    }
+  };
+
   const renderPlayerCard = (match, user, label) => {
     const userId = user?._id || user?.id;
     const result = getUserResult(match, userId);
@@ -84,6 +122,8 @@ const Matches = () => {
       (String(match.resultSubmittedBy?._id || match.resultSubmittedBy) === String(userId)
         ? match.screenshot
         : "");
+
+    const canAction = getStatusGroup(match.status) === "pending" || getStatusGroup(match.status) === "running";
 
     return (
       <div className="player-detail-card">
@@ -102,6 +142,18 @@ const Matches = () => {
         ) : (
           <p>-</p>
         )}
+
+        {canAction && (
+          <div className="player-action-row">
+            <button className="win-btn" onClick={() => decideWinner(match, user, label)}>
+              Win
+            </button>
+
+            <button className="cancel-btn" onClick={() => cancelMatch(match)}>
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -114,19 +166,15 @@ const Matches = () => {
         <button className={tab === "running" ? "active-tab" : ""} onClick={() => setTab("running")}>
           Running Match
         </button>
-
         <button className={tab === "pending" ? "active-tab" : ""} onClick={() => setTab("pending")}>
           Pending Match
         </button>
-
         <button className={tab === "completed" ? "active-tab" : ""} onClick={() => setTab("completed")}>
           Completed Match
         </button>
-
         <button className={tab === "cancelled" ? "active-tab" : ""} onClick={() => setTab("cancelled")}>
           Cancel Match
         </button>
-
         <button className={tab === "total" ? "active-tab" : ""} onClick={() => setTab("total")}>
           Total Match
         </button>
@@ -140,7 +188,6 @@ const Matches = () => {
           placeholder="Mobile number se match search karo"
           onChange={(e) => setSearchMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
         />
-
         {searchMobile && <button onClick={() => setSearchMobile("")}>Clear</button>}
       </div>
 
