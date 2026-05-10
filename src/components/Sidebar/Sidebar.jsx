@@ -17,6 +17,7 @@ const Sidebar = ({ open, setOpen }) => {
   const links = [
     ["Dashboard", "/dashboard"],
     ["Users", "/users"],
+    ["KYC", "/kyc"],
     ["Deposit", "/deposit"],
     ["Withdraw", "/withdraw"],
     ["Matches", "/matches"],
@@ -27,7 +28,10 @@ const Sidebar = ({ open, setOpen }) => {
 
   return (
     <>
-      <div className={`sidebar-overlay ${open ? "show" : ""}`} onClick={closeMenu}></div>
+      <div
+        className={`sidebar-overlay ${open ? "show" : ""}`}
+        onClick={closeMenu}
+      />
 
       <aside className={`sidebar ${open ? "open" : ""}`}>
         <h2 className="logo">Ludo Admin</h2>
