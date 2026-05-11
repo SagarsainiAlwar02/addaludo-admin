@@ -3,15 +3,15 @@
   background: #0f172a;
   min-height: 100vh;
   color: white;
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* HEADING */
 .settings-container h1 {
   font-size: 26px;
   margin-bottom: 20px;
 }
 
-/* TABS */
 .tabs {
   display: flex;
   gap: 10px;
@@ -26,12 +26,7 @@
   background: #1e293b;
   color: #cbd5f5;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-.tabs button:hover {
-  background: #3b82f6;
-  color: white;
+  white-space: nowrap;
 }
 
 .active-tab {
@@ -39,7 +34,6 @@
   color: white !important;
 }
 
-/* FORM BOX */
 .form-box {
   background: #1e293b;
   padding: 20px;
@@ -52,6 +46,7 @@
 }
 
 .form-box input {
+  display: block;
   width: 100%;
   padding: 10px;
   margin-bottom: 12px;
@@ -60,13 +55,14 @@
   outline: none;
 }
 
-/* BUTTON */
 .btn {
   width: 100%;
   padding: 10px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
+  color: white;
+  font-weight: 600;
 }
 
 .bonus-btn {
@@ -77,44 +73,94 @@
   background: #ef4444;
 }
 
-/* TABLE */
+.report-box {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.report-title {
+  margin-bottom: 12px;
+}
+
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid #334155;
+}
+
 .settings-table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   background: #1e293b;
-  border-radius: 12px;
-  overflow: hidden;
 }
 
 .settings-table th {
   background: #020617;
   padding: 15px;
   color: #94a3b8;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .settings-table td {
   padding: 15px;
   text-align: center;
   border-top: 1px solid #334155;
+  white-space: nowrap;
 }
 
 .settings-table tr:hover {
   background: #334155;
 }
 
+.empty-text {
+  color: #cbd5e1;
+}
 
+.table-scroll::-webkit-scrollbar {
+  height: 8px;
+}
 
+.table-scroll::-webkit-scrollbar-track {
+  background: #0f172a;
+  border-radius: 10px;
+}
 
+.table-scroll::-webkit-scrollbar-thumb {
+  background: #64748b;
+  border-radius: 10px;
+}
 
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 14px;
+  }
 
+  .settings-container h1 {
+    font-size: 22px;
+  }
 
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
 
-.form-box input {
-  display: block;
-  margin-bottom: 10px;
-  padding: 8px;
-  width: 250px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
+  .tabs button {
+    flex: 0 0 auto;
+  }
+
+  .form-box {
+    max-width: 100%;
+  }
+
+  .settings-table {
+    min-width: 920px;
+  }
 }
