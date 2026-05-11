@@ -164,3 +164,21 @@
     min-width: 920px;
   }
 }
+
+
+
+
+@media (max-width: 768px) {
+  .table-scroll {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    display: block;
+    width: 100%;
+    max-width: calc(100vw - 28px);
+  }
+
+  .settings-table {
+    min-width: 950px !important;
+    width: 950px !important;
+  }
+}
