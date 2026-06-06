@@ -135,7 +135,9 @@ const Deposit = () => {
               const admin = item.approvedBy || {};
 
               const screenshotUrl = item.screenshot
-                ? `${IMAGE_BASE}${item.screenshot}`
+                ? item.screenshot.startsWith("http")
+                  ? item.screenshot
+                  : ``
                 : "";
 
               const isBonus = item.type === "bonus";
