@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useEffect, useState } from "react";
 import API from "../../api";
 import "./Deposite.css";
@@ -11,14 +7,19 @@ const IMAGE_BASE = "https://api.addaludo.com";
 const Deposit = () => {
   const [tab, setTab] = useState("request");
   const [deposits, setDeposits] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchMobile, setSearchMobile] = useState("");
 
   const fetchDeposits = async () => {
     try {
-      setLoading(true);
-      const res = await API.get("/admin/deposits");
-      const list = Array.isArray(res.data) ? res.data : res.data.deposits || [];
+    
+
+     const res = await API.get("/admin/deposits?limit=50");
+
+      const list = Array.isArray(res.data)
+        ? res.data
+        : res.data.deposits || [];
+
       setDeposits(list);
     } catch (err) {
       console.log("Deposit fetch error:", err.response?.data || err.message);
@@ -37,6 +38,7 @@ const Deposit = () => {
       await API.patch(`/deposit/admin/approve/${id}`, {
         adminNote: "Approved from admin panel",
       });
+
       alert("Deposit approved");
       fetchDeposits();
     } catch (err) {
@@ -49,6 +51,7 @@ const Deposit = () => {
       await API.patch(`/deposit/admin/reject/${id}`, {
         adminNote: "Rejected from admin panel",
       });
+
       alert("Deposit rejected");
       fetchDeposits();
     } catch (err) {
@@ -70,7 +73,7 @@ const Deposit = () => {
     String(item.userId?.phone || "").includes(searchMobile)
   );
 
-  if (loading) return <p>Loading...</p>;
+  
 
   return (
     <div className="deposit-container">
@@ -130,6 +133,7 @@ const Deposit = () => {
             list.map((item) => {
               const user = item.userId || {};
               const admin = item.approvedBy || {};
+
               const screenshotUrl = item.screenshot
                 ? `${IMAGE_BASE}${item.screenshot}`
                 : "";
@@ -148,7 +152,14 @@ const Deposit = () => {
                   <td>
                     {screenshotUrl ? (
                       <a href={screenshotUrl} target="_blank" rel="noreferrer">
-                        <img src={screenshotUrl} alt="proof" className="proof-img" />
+                       <img
+  src={screenshotUrl}
+  alt="proof"
+  className="proof-img"
+  loading="lazy"
+  width="60"
+  height="60"
+/>
                       </a>
                     ) : (
                       "-"
@@ -158,7 +169,9 @@ const Deposit = () => {
                   <td className={item.status}>{item.status}</td>
 
                   <td>
-                    {admin.name ? `${admin.name} (${admin.role || "admin"})` : "-"}
+                    {admin.name
+                      ? `${admin.name} (${admin.role || "admin"})`
+                      : "-"}
                   </td>
 
                   <td>
