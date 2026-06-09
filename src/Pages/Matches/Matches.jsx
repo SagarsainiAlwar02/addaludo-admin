@@ -15,7 +15,7 @@ const Matches = () => {
   const fetchMatches = async () => {
     try {
       setLoading(true);
-      const res = await API.get("/admin/battles");
+   const res = await API.get("/admin/battles?limit=200");
       setMatches(Array.isArray(res.data) ? res.data : res.data.battles || []);
     } catch (err) {
       console.log("Matches error:", err.response?.data || err.message);
@@ -104,10 +104,11 @@ const Matches = () => {
 
 
 const openMatchDetails = async (match) => {
-  try {
-    setSelectedMatch(match); // pehle modal turant open karo
+  setSelectedMatch(match);
 
+  try {
     const id = match?._id || match?.id;
+
     if (!id) return;
 
     const res = await API.get(`/admin/battles/${id}`);
@@ -362,7 +363,7 @@ const openMatchDetails = async (match) => {
                   {match.status || "-"}
                 </td>
                 <td>
-                  <button
+ <button
   className="view"
   type="button"
   onClick={(e) => {
