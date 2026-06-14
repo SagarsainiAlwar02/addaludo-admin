@@ -2,6 +2,17 @@ import React, { useState, useEffect } from "react";
 import "./Users.css";
 import API from "../../api";
 
+const getTotalBalance = (user) => {
+  const deposit = Number(user?.wallet?.balance || 0);
+  const winnings = Number(user?.wallet?.winnings || 0);
+  const totalBalance = Number(user?.wallet?.totalBalance || 0);
+
+  return totalBalance || deposit + winnings || Number(user?.balance || 0);
+};
+
+
+
+
 const Users = () => {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -10,23 +21,35 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await API.get("/admin/users");
+     const res = await API.get(`/admin/users?limit=50&search=${search}`);
       setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.log("Fetch users error:", err.response?.data || err.message);
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
+  const timer = setTimeout(() => {
     fetchUsers();
-  }, []);
+  }, 400);
+
+  return () => clearTimeout(timer);
+}, [search]);
 
   const filteredUsers = users.filter((user) => {
     const status = user.status || "active";
-    const phone = user.phone || user.mobile || "";
+    const phone = String(user.phone || user.mobile || "");
+    const name = String(user.name || "");
+    const referral = String(user.referralCode || "");
+    const searchValue = search.trim().toLowerCase();
 
     const matchFilter = filter === "all" || status === filter;
-    const matchSearch = phone.includes(search);
+
+    const matchSearch =
+      !searchValue ||
+      phone.toLowerCase().includes(searchValue) ||
+      name.toLowerCase().includes(searchValue) ||
+      referral.toLowerCase().includes(searchValue);
 
     return matchFilter && matchSearch;
   });
@@ -41,7 +64,9 @@ const Users = () => {
   };
 
   const deleteUser = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user?"
+    );
     if (!confirmDelete) return;
 
     try {
@@ -65,19 +90,36 @@ const Users = () => {
       />
 
       <div className="filters">
-        <button className={filter === "all" ? "active-filter" : ""} onClick={() => setFilter("all")}>
+        <button
+          className={filter === "all" ? "active-filter" : ""}
+          onClick={() => setFilter("all")}
+        >
           All Users
         </button>
-        <button className={filter === "active" ? "active-filter" : ""} onClick={() => setFilter("active")}>
+
+        <button
+          className={filter === "active" ? "active-filter" : ""}
+          onClick={() => setFilter("active")}
+        >
           Active
         </button>
-        <button className={filter === "blocked" ? "active-filter" : ""} onClick={() => setFilter("blocked")}>
+
+        <button
+          className={filter === "blocked" ? "active-filter" : ""}
+          onClick={() => setFilter("blocked")}
+        >
           Blocked
         </button>
-        <button className={filter === "mismatch" ? "active-filter" : ""} onClick={() => setFilter("mismatch")}>
+
+        <button
+          className={filter === "mismatch" ? "active-filter" : ""}
+          onClick={() => setFilter("mismatch")}
+        >
           Mismatch
         </button>
       </div>
+
+      <p className="scroll-hint">← Swipe left/right to see full table →</p>
 
       <div className="table-scroll">
         <table className="user-table">
@@ -105,11 +147,17 @@ const Users = () => {
                     <td>{user.name || "Player"}</td>
                     <td>{phone}</td>
                     <td>{user.referralCode || "-"}</td>
-                    <td>₹{user.balance || user.wallet?.balance || 0}</td>
-                    <td className={status}>{status}</td>
+                   <td>₹{getTotalBalance(user)}</td>
+                    <td>
+                      <span className={`status-badge ${status}`}>{status}</span>
+                    </td>
+
                     <td>
                       <div className="action-buttons">
-                        <button className="view" onClick={() => setSelectedUser(user)}>
+                        <button
+                          className="view"
+                          onClick={() => setSelectedUser(user)}
+                        >
                           View
                         </button>
 
@@ -120,7 +168,10 @@ const Users = () => {
                           {status === "blocked" ? "Unban" : "Ban"}
                         </button>
 
-                        <button className="delete" onClick={() => deleteUser(user._id)}>
+                        <button
+                          className="delete"
+                          onClick={() => deleteUser(user._id)}
+                        >
                           Delete
                         </button>
                       </div>
@@ -140,15 +191,29 @@ const Users = () => {
       </div>
 
       {selectedUser && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal" onClick={() => setSelectedUser(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>User Details</h2>
 
-            <p><b>Name:</b> {selectedUser.name || "Player"}</p>
-            <p><b>Mobile:</b> {selectedUser.phone || selectedUser.mobile || "-"}</p>
-            <p><b>Referral:</b> {selectedUser.referralCode || "-"}</p>
-            <p><b>Balance:</b> ₹{selectedUser.balance || selectedUser.wallet?.balance || 0}</p>
-            <p><b>Status:</b> {selectedUser.status || "active"}</p>
+            <p>
+              <b>ID:</b> {selectedUser._id}
+            </p>
+            <p>
+              <b>Name:</b> {selectedUser.name || "Player"}
+            </p>
+            <p>
+              <b>Mobile:</b> {selectedUser.phone || selectedUser.mobile || "-"}
+            </p>
+            <p>
+              <b>Referral:</b> {selectedUser.referralCode || "-"}
+            </p>
+            <p>
+              <b>Balance:</b> ₹
+              {getTotalBalance(selectedUser)}
+            </p>
+            <p>
+              <b>Status:</b> {selectedUser.status || "active"}
+            </p>
 
             <button onClick={() => setSelectedUser(null)}>Close</button>
           </div>
