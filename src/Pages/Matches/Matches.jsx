@@ -83,6 +83,9 @@ console.log("TOTAL =>", battleData.length);
     return user?.name || user?.username || "N/A";
   };
 
+
+  
+
 const filteredMatches = useMemo(() => {
   const mobile = searchMobile.replace(/\D/g, "");
 
@@ -95,9 +98,14 @@ const filteredMatches = useMemo(() => {
       String(creatorPhone).includes(mobile) ||
       String(opponentPhone).includes(mobile);
 
-    return mobileOk;
+    const tabOk =
+      tab === "total"
+        ? true
+        : getStatusGroup(match.status) === tab;
+
+    return mobileOk && tabOk;
   });
-}, [matches, searchMobile]);
+}, [matches, searchMobile, tab]);
 
   const getScreenshotUrl = (path) => {
     if (!path) return "";
@@ -200,9 +208,13 @@ const openMatchDetails = async (match) => {
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
   fetchMatches();
 }, []);
+
+useEffect(() => {
+  console.log("MATCHES STATE =", matches);
+}, [matches]);
 
   const renderPlayerCard = (match, user, label) => {
     const userId = user?._id || user?.id;
