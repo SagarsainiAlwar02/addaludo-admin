@@ -14,28 +14,23 @@ const Matches = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
 
+
+
 const fetchMatches = async () => {
   try {
     setLoading(true);
 
-   const res = await API.get("/admin/battles?limit=100");
+    const res = await API.get("/admin/battles");
 
-    console.log("MATCH API RESPONSE", res.data);
+    console.log("FULL RESPONSE =", res);
+    console.log("DATA =", res.data);
+    console.log("BATTLES =", res.data?.battles);
 
-  const battleData =
-  res?.data?.battles ||
-  res?.data?.data ||
-  [];
+    setMatches(res.data?.battles || []);
 
-setMatches(
-  Array.isArray(battleData)
-    ? battleData
-    : []
-);
-console.log("BATTLES =>", battleData);
-console.log("TOTAL =>", battleData.length);
   } catch (err) {
-    console.log("Matches error:", err.response?.data || err.message);
+    console.log("ERROR =", err);
+    console.log("ERROR DATA =", err.response?.data);
     setMatches([]);
   } finally {
     setLoading(false);
