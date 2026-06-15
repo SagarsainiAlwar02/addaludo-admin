@@ -8,6 +8,7 @@ const Matches = () => {
   const [tab, setTab] = useState("running");
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [matches, setMatches] = useState([]);
+  
   const [loading, setLoading] = useState(false);
   const [searchMobile, setSearchMobile] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -17,17 +18,22 @@ const fetchMatches = async () => {
   try {
     setLoading(true);
 
-    const res = await API.get("/admin/battles?limit=200");
+   const res = await API.get("/admin/battles?limit=100");
 
     console.log("MATCH API RESPONSE", res.data);
 
-    setMatches(
-      Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data?.battles)
-        ? res.data.battles
-        : []
-    );
+  const battleData =
+  res?.data?.battles ||
+  res?.data?.data ||
+  [];
+
+setMatches(
+  Array.isArray(battleData)
+    ? battleData
+    : []
+);
+console.log("BATTLES =>", battleData);
+console.log("TOTAL =>", battleData.length);
   } catch (err) {
     console.log("Matches error:", err.response?.data || err.message);
     setMatches([]);
@@ -36,29 +42,38 @@ const fetchMatches = async () => {
   }
 };
 
-  const getStatusGroup = (status) => {
-    if (
-      ["running", "room_submitted", "result_submitted", "loss_submitted"].includes(
-        status
-      )
-    ) {
-      return "running";
-    }
+ const getStatusGroup = (status) => {
+  status = String(status || "").toLowerCase();
 
-    if (["open", "join_requested", "cancel_requested"].includes(status)) {
-      return "pending";
-    }
+  if (
+    ["running", "room_submitted", "result_submitted", "loss_submitted"].includes(
+      status
+    )
+  ) {
+    return "running";
+  }
 
-    if (["approved", "completed"].includes(status)) {
-      return "completed";
-    }
+  if (
+    ["open", "join_requested", "cancel_requested"].includes(status)
+  ) {
+    return "pending";
+  }
 
-    if (["cancelled", "rejected"].includes(status)) {
-      return "cancelled";
-    }
+  if (
+    ["approved", "completed"].includes(status)
+  ) {
+    return "completed";
+  }
 
-    return status || "pending";
-  };
+  if (
+    ["cancelled", "rejected"].includes(status)
+  ) {
+    return "cancelled";
+  }
+
+  return "pending";
+};
+
 
   const getUserPhone = (user) => {
     return user?.phone || user?.mobile || "";
@@ -68,23 +83,21 @@ const fetchMatches = async () => {
     return user?.name || user?.username || "N/A";
   };
 
-  const filteredMatches = useMemo(() => {
-    const mobile = searchMobile.replace(/\D/g, "");
+const filteredMatches = useMemo(() => {
+  const mobile = searchMobile.replace(/\D/g, "");
 
-    return matches.filter((match) => {
-      const statusOk = tab === "total" || getStatusGroup(match.status) === tab;
+  return matches.filter((match) => {
+    const creatorPhone = getUserPhone(match.createdBy);
+    const opponentPhone = getUserPhone(match.opponent);
 
-      const creatorPhone = getUserPhone(match.createdBy);
-      const opponentPhone = getUserPhone(match.opponent);
+    const mobileOk =
+      !mobile ||
+      String(creatorPhone).includes(mobile) ||
+      String(opponentPhone).includes(mobile);
 
-      const mobileOk =
-        !mobile ||
-        String(creatorPhone).includes(mobile) ||
-        String(opponentPhone).includes(mobile);
-
-      return statusOk && mobileOk;
-    });
-  }, [matches, tab, searchMobile]);
+    return mobileOk;
+  });
+}, [matches, searchMobile]);
 
   const getScreenshotUrl = (path) => {
     if (!path) return "";
@@ -108,6 +121,8 @@ const openMatchDetails = async (match) => {
   setSelectedMatch(match);
 
   try {
+    setActionLoading(true);
+
     const id = match?._id || match?.id;
 
     if (!id) return;
@@ -123,6 +138,8 @@ const openMatchDetails = async (match) => {
   } catch (err) {
     console.log("Match detail error:", err.response?.data || err.message);
     setSelectedMatch(match);
+  } finally {
+    setActionLoading(false);
   }
 };
 
@@ -137,6 +154,7 @@ const openMatchDetails = async (match) => {
 
       const ok = window.confirm(`${label} ko winner banana hai?`);
       if (!ok) return;
+
 
       setActionLoading(true);
 
@@ -181,6 +199,10 @@ const openMatchDetails = async (match) => {
       setActionLoading(false);
     }
   };
+
+  useEffect(() => {
+  fetchMatches();
+}, []);
 
   const renderPlayerCard = (match, user, label) => {
     const userId = user?._id || user?.id;
@@ -238,11 +260,14 @@ const openMatchDetails = async (match) => {
 
         {getScreenshotUrl(screenshot) ? (
           <a href={getScreenshotUrl(screenshot)} target="_blank" rel="noreferrer">
-            <img
-              src={getScreenshotUrl(screenshot)}
-              alt="match proof"
-              className="proof-img"
-            />
+           <img
+  src={getScreenshotUrl(screenshot)}
+  alt="match proof"
+  className="proof-img"
+  onError={(e) => {
+    e.target.style.display = "none";
+  }}
+/>
           </a>
         ) : (
           <p>-</p>
@@ -274,6 +299,7 @@ const openMatchDetails = async (match) => {
   return (
     <div className="matches-container">
       <h1>Matches</h1>
+      <h3>Total Matches: {matches.length}</h3>
 
       <div className="tabs">
         <button
@@ -331,6 +357,8 @@ const openMatchDetails = async (match) => {
       </div>
 
       {loading && <p>Loading matches...</p>}
+      <p>Total API Matches: {matches.length}</p>
+<p>Filtered Matches: {filteredMatches.length}</p>
 
       <table className="match-table">
         <thead>
@@ -359,7 +387,11 @@ const openMatchDetails = async (match) => {
                 <td>{match.opponent ? getUserName(match.opponent) : "Waiting"}</td>
                 <td>{getUserPhone(match.opponent) || "-"}</td>
                 <td>₹{match.amount || 0}</td>
-                <td>{match.winner ? getUserName(match.winner) : "-"}</td>
+               <td>
+  {match?.winner?.name ||
+    match?.winner?.username ||
+    "-"}
+</td>
                 <td className={getStatusGroup(match.status)}>
                   {match.status || "-"}
                 </td>
