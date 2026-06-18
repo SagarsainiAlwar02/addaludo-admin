@@ -100,76 +100,36 @@ const Settings = () => {
     return true;
   };
 
+
   const addBonus = async () => {
-    if (!validateForm(bonusData)) return;
-
-    try {
-      setLoading(true);
-
-      const payload = {
-        ...bonusData,
-        mobile: String(bonusData.mobile).replace(/\D/g, "").slice(-10),
-        amount: Number(bonusData.amount),
-      };
-
-      const res = await axios.post(`${API_BASE}/admin/add-bonus`, payload, {
-        headers,
-      });
-
-      alert(res.data?.msg || "Bonus added successfully");
-
-      setBonusData({
-        name: "",
-        mobile: "",
-        amount: "",
-        reason: "",
-      });
-
-      await fetchReports();
-      setTab("bonusReport");
-    } catch (err) {
-      console.log("Bonus Error:", err.response?.data || err.message);
-      alert(err.response?.data?.msg || "Error adding bonus");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addPenalty = async () => {
-    if (!validateForm(penaltyData)) return;
-
-    try {
-      setLoading(true);
-
-      const payload = {
-        ...penaltyData,
-        mobile: String(penaltyData.mobile).replace(/\D/g, "").slice(-10),
-        amount: Number(penaltyData.amount),
-      };
-
-      const res = await axios.post(`${API_BASE}/admin/add-penalty`, payload, {
-        headers,
-      });
-
-      alert(res.data?.msg || "Penalty deducted successfully");
-
-      setPenaltyData({
-        name: "",
-        mobile: "",
-        amount: "",
-        reason: "",
-      });
-
-      await fetchReports();
-      setTab("penaltyReport");
-    } catch (err) {
-      console.log("Penalty Error:", err.response?.data || err.message);
-      alert(err.response?.data?.msg || "Error adding penalty");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  if (!validateForm(bonusData)) return;
+  try {
+    setLoading(true);
+    const payload = {
+      ...bonusData,
+      mobile: String(bonusData.mobile).replace(/\D/g, "").slice(-10),
+      amount: Number(bonusData.amount),
+    };
+    const res = await fetch(`${API_BASE}/admin/add-bonus`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + adminToken,
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    alert(data?.msg || "Bonus added successfully");
+    setBonusData({ name: "", mobile: "", amount: "", reason: "" });
+    await fetchReports();
+    setTab("bonusReport");
+  } catch (err) {
+    console.log("Bonus Error:", err);
+    alert("Error adding bonus");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="settings-container">
       <h1>Settings</h1>
