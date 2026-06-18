@@ -17,6 +17,8 @@ const Matches = () => {
 
 
 const fetchMatches = async () => {
+    console.log("FETCH MATCHES CALLED");
+
   try {
     setLoading(true);
 

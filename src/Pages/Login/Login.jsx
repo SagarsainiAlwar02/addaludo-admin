@@ -20,7 +20,7 @@ const Login = () => {
 
       // ✅ DIRECT BACKEND API
       const res = await axios.post(
-        "https://api.addaludo.com/api/admin-auth/login",
+        "https://addaludo-tnwe.vercel.app/api/admin-auth/login",
         {
           email: email.trim().toLowerCase(),
           password: password.trim(),
