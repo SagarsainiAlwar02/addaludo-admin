@@ -130,6 +130,36 @@ const Settings = () => {
     setLoading(false);
   }
 };
+
+const addPenalty = async () => {
+    if (!validateForm(penaltyData)) return;
+    try {
+      setLoading(true);
+      const payload = {
+        ...penaltyData,
+        mobile: String(penaltyData.mobile).replace(/\D/g, "").slice(-10),
+        amount: Number(penaltyData.amount),
+      };
+      const res = await fetch(`${API_BASE}/admin/add-penalty`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + adminToken,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      alert(data?.msg || "Penalty deducted successfully");
+      setPenaltyData({ name: "", mobile: "", amount: "", reason: "" });
+      await fetchReports();
+      setTab("penaltyReport");
+    } catch (err) {
+      console.log("Penalty Error:", err);
+      alert("Error adding penalty");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="settings-container">
       <h1>Settings</h1>
