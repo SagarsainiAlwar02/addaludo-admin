@@ -210,9 +210,9 @@ const Users = () => {
             <p>
               <b>Referral:</b> {selectedUser.referralCode || "-"}
             </p>
-            
+
             <p>
-              <b>Deposit Balance:</b> ₹{Number(selectedUser?.wallet?.balance || 0)}
+              <b>Deposit Balance:</b> ₹{Number(selectedUser?.wallet?.balance || 0) + Number(selectedUser?.wallet?.bonus || 0)}
             </p>
             <p>
               <b>Winning Balance:</b> ₹{Number(selectedUser?.wallet?.winnings || 0)}
