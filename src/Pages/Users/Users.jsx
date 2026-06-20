@@ -147,7 +147,10 @@ const Users = () => {
                     <td>{user.name || "Player"}</td>
                     <td>{phone}</td>
                     <td>{user.referralCode || "-"}</td>
-                   <td>₹{getTotalBalance(user)}</td>
+                  <td>
+  <div>Deposit: ₹{Number(user?.wallet?.balance || 0)}</div>
+  <div>Winning: ₹{Number(user?.wallet?.winnings || 0)}</div>
+</td>
                     <td>
                       <span className={`status-badge ${status}`}>{status}</span>
                     </td>
@@ -207,10 +210,14 @@ const Users = () => {
             <p>
               <b>Referral:</b> {selectedUser.referralCode || "-"}
             </p>
+            
             <p>
-              <b>Balance:</b> ₹
-              {getTotalBalance(selectedUser)}
+              <b>Deposit Balance:</b> ₹{Number(selectedUser?.wallet?.balance || 0)}
             </p>
+            <p>
+              <b>Winning Balance:</b> ₹{Number(selectedUser?.wallet?.winnings || 0)}
+            </p>
+
             <p>
               <b>Status:</b> {selectedUser.status || "active"}
             </p>
