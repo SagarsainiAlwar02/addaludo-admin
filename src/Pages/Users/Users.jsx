@@ -148,7 +148,7 @@ const Users = () => {
                     <td>{phone}</td>
                     <td>{user.referralCode || "-"}</td>
                   <td>
-  <div>Deposit: ₹{Number(user?.wallet?.balance || 0)}</div>
+  <div>Deposit: ₹{Number(user?.wallet?.deposit || 0) + Number(user?.wallet?.bonus || 0)}</div>
   <div>Winning: ₹{Number(user?.wallet?.winnings || 0)}</div>
 </td>
                     <td>
@@ -212,7 +212,7 @@ const Users = () => {
             </p>
 
             <p>
-              <b>Deposit Balance:</b> ₹{Number(selectedUser?.wallet?.balance || 0) + Number(selectedUser?.wallet?.bonus || 0)}
+              <b>Deposit Balance:</b> ₹{Number(selectedUser?.wallet?.deposit || 0) + Number(selectedUser?.wallet?.bonus || 0)}
             </p>
             <p>
               <b>Winning Balance:</b> ₹{Number(selectedUser?.wallet?.winnings || 0)}
