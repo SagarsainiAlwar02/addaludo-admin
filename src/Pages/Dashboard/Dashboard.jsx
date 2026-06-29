@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import API from "../../api";
 import "./Dashboard.css";
 
 const Dashboard = () => {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  // filter state: 'all' matlab All Time, 'today' matlab Today data
   const [filter, setFilter] = useState("all"); 
 
-  const fetchStats = async () => {
+  // useCallback lagane se React dependency warning nahi dega
+  const fetchStats = useCallback(async () => {
     try {
-      // Backend ko query parameter bhejenge: /admin/dashboard?filter=today ya ?filter=all
       const res = await API.get(`/admin/dashboard?filter=${filter}`);
-
-      // Labels ko dynamic kar diya filter ke status ke hisab se
       const isToday = filter === "today";
 
       setStats([
@@ -33,26 +30,24 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]); // Filter badalne par hi ye re-create hoga
 
-  // Jab bhi user All Time ya Today button par click karega, data turant refresh hoga
+  // Initial load aur filter change par data fetch
   useEffect(() => {
     fetchStats();
-  }, [filter]);
+  }, [fetchStats]);
 
-  // Background auto-refresh regular chalta rahega
+  // 10 second ka auto refresh interval
   useEffect(() => {
     const interval = setInterval(fetchStats, 10000);
     return () => clearInterval(interval);
-  }, [filter]);
+  }, [fetchStats]);
 
   return (
     <div className="dashboard-container">
-      {/* Top Row with Header and Toggle Button */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h1 className="heading" style={{ margin: 0 }}>Dashboard</h1>
         
-        {/* Toggle Switch Container */}
         <div style={{ display: "flex", backgroundColor: "#1e293b", padding: "4px", borderRadius: "8px", border: "1px solid #334155" }}>
           <button
             onClick={() => setFilter("all")}
