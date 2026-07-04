@@ -1,24 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import API from "../../api";
 import "./Dashboard.css";
 
 const Dashboard = () => {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all"); 
 
-  const fetchStats = async () => {
+  // useCallback lagane se React dependency warning nahi dega
+  const fetchStats = useCallback(async () => {
     try {
-      const res = await API.get("/admin/dashboard");
+      const res = await API.get(`/admin/dashboard?filter=${filter}`);
+      const isToday = filter === "today";
 
       setStats([
-        { title: "Total Users", value: res.data.totalUsers || 0, isCount: true },
-        { title: "Total Deposit", value: res.data.totalDeposit || 0 },
-        { title: "Total Withdraw", value: res.data.totalWithdraw || 0 },
-        { title: "Total Earnings", value: res.data.totalEarnings || 0 },
-        { title: "Total Commission", value: res.data.totalCommission || 0 },
-        { title: "Total Referral", value: res.data.totalReferral || 0 },
-        { title: "Total Bonus", value: res.data.totalBonus || 0 },
-        { title: "Total Penalty", value: res.data.totalPenalty || 0 },
+        { title: isToday ? "Today New Users" : "Total Users", value: res.data.totalUsers || 0, isCount: true },
+        { title: isToday ? "Today Deposit" : "Total Deposit", value: res.data.totalDeposit || 0 },
+        { title: isToday ? "Today Withdraw" : "Total Withdraw", value: res.data.totalWithdraw || 0 },
+        { title: isToday ? "Today Earnings" : "Total Earnings", value: res.data.totalEarnings || 0 },
+        { title: isToday ? "Today Commission" : "Total Commission", value: res.data.totalCommission || 0 },
+        { title: isToday ? "Today Referral" : "Total Referral", value: res.data.totalReferral || 0 },
+        { title: isToday ? "Today Bonus" : "Total Bonus", value: res.data.totalBonus || 0 },
+        { title: isToday ? "Today Penalty" : "Total Penalty", value: res.data.totalPenalty || 0 },
         { title: "Hold Balance", value: res.data.holdBalance || 0 },
         { title: "Wallet Balance", value: res.data.walletBalance || 0 },
       ]);
@@ -27,18 +30,59 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]); // Filter badalne par hi ye re-create hoga
 
+  // Initial load aur filter change par data fetch
   useEffect(() => {
     fetchStats();
+  }, [fetchStats]);
 
+  // 10 second ka auto refresh interval
+  useEffect(() => {
     const interval = setInterval(fetchStats, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchStats]);
 
   return (
     <div className="dashboard-container">
-      <h1 className="heading">Dashboard</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 className="heading" style={{ margin: 0 }}>Dashboard</h1>
+        
+        <div style={{ display: "flex", backgroundColor: "#1e293b", padding: "4px", borderRadius: "8px", border: "1px solid #334155" }}>
+          <button
+            onClick={() => setFilter("all")}
+            style={{
+              padding: "6px 14px",
+              borderRadius: "6px",
+              border: "none",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              backgroundColor: filter === "all" ? "#2563eb" : "transparent",
+              color: filter === "all" ? "#ffffff" : "#94a3b8"
+            }}
+          >
+            All Time
+          </button>
+          <button
+            onClick={() => setFilter("today")}
+            style={{
+              padding: "6px 14px",
+              borderRadius: "6px",
+              border: "none",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              backgroundColor: filter === "today" ? "#2563eb" : "transparent",
+              color: filter === "today" ? "#ffffff" : "#94a3b8"
+            }}
+          >
+            Today
+          </button>
+        </div>
+      </div>
 
       {loading ? (
         <p>Loading...</p>
