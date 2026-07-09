@@ -1,16 +1,17 @@
 .navbar {
   height: 60px;
-  background: #020617;
-  color: white;
+  background: #ffffff;
+  color: #3d1f2e;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid #f0c2d8;
 }
 
 .navbar-left h2 {
   font-size: 20px;
+  color: #2a1520;
 }
 
 .navbar-right {
@@ -22,14 +23,17 @@
 .navbar-right input {
   padding: 7px 10px;
   border-radius: 5px;
-  border: none;
+  border: 1px solid #f0c2d8;
   outline: none;
+  background: #fef6fa;
+  color: #2a1520;
 }
 
 .profile {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: #3d1f2e;
 }
 
 .profile img {
