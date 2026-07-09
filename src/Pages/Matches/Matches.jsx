@@ -29,7 +29,7 @@ const Matches = () => {
   const getStatusGroup = (status) => {
     status = String(status || "").toLowerCase();
     if (["running", "room_submitted", "result_submitted", "loss_submitted"].includes(status)) return "running";
-    if (["open", "join_requested", "cancel_requested"].includes(status)) return "pending";
+    if (["join_requested", "cancel_requested"].includes(status)) return "pending";
     if (["approved", "completed"].includes(status)) return "completed";
     if (["cancelled", "rejected"].includes(status)) return "cancelled";
     return "pending";
@@ -39,19 +39,20 @@ const Matches = () => {
   const getUserName = (user) => user?.name || user?.username || "N/A";
 
   // ✅ Naye matches pehle (createdAt descending)
-  const filteredMatches = useMemo(() => {
-    const mobile = searchMobile.replace(/\D/g, "");
-    const filtered = matches
-      .filter((match) => {
-        const creatorPhone = getUserPhone(match.createdBy);
-        const opponentPhone = getUserPhone(match.opponent);
-        const mobileOk = !mobile || String(creatorPhone).includes(mobile) || String(opponentPhone).includes(mobile);
-        const tabOk = tab === "total" ? true : getStatusGroup(match.status) === tab;
-        return mobileOk && tabOk;
-      })
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // ✅ Newest first
-    return filtered;
-  }, [matches, searchMobile, tab]);
+ const filteredMatches = useMemo(() => {
+  const mobile = searchMobile.replace(/\D/g, "");
+  const filtered = matches
+    .filter((match) => {
+      if (String(match.status || "").toLowerCase() === "open") return false; // ✅ waiting/no-opponent table hide
+      const creatorPhone = getUserPhone(match.createdBy);
+      const opponentPhone = getUserPhone(match.opponent);
+      const mobileOk = !mobile || String(creatorPhone).includes(mobile) || String(opponentPhone).includes(mobile);
+      const tabOk = tab === "total" ? true : getStatusGroup(match.status) === tab;
+      return mobileOk && tabOk;
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // ✅ Newest first
+  return filtered;
+}, [matches, searchMobile, tab]);
 
   // ✅ Pagination logic
   const totalPages = Math.ceil(filteredMatches.length / PAGE_SIZE);
