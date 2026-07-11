@@ -21,6 +21,7 @@ const Sidebar = ({ open, setOpen }) => {
     ["Deposit", "/deposit"],
     ["Withdraw", "/withdraw"],
     ["Matches", "/matches"],
+       ["Dummy Battles", "/dummy-battles"], 
     ["Settings", "/settings"],
     ["Payment Control", "/payment"],
     ["Admin Control", "/admin-control"],

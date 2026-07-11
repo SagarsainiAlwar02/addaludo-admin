@@ -14,6 +14,7 @@ const Settings = lazy(() => import("./Pages/Settings/Settings"));
 const PaymentControl = lazy(() => import("./Pages/PaymentControl/PaymentControl"));
 const AdminControl = lazy(() => import("./Pages/AdminControl/AdminControl"));
 const Kyc = lazy(() => import("./Pages/kyc/kyc"));
+const DummyBattles = lazy(() => import("./Pages/DummyBattles/DummyBattles"));   // ✅ NEW
 
 const Loader = () => null;
 
@@ -42,6 +43,7 @@ function App() {
 
       <Route path="/users" element={<ProtectedLayout><Users /></ProtectedLayout>} />
       <Route path="/matches" element={<ProtectedLayout><Matches /></ProtectedLayout>} />
+      <Route path="/dummy-battles" element={<ProtectedLayout><DummyBattles /></ProtectedLayout>} />  
       <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
       <Route path="/payment" element={<ProtectedLayout><PaymentControl /></ProtectedLayout>} />
       <Route path="/admin-control" element={<ProtectedLayout><AdminControl /></ProtectedLayout>} />
