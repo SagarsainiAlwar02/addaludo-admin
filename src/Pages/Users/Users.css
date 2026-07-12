@@ -438,3 +438,8 @@
     min-width: 250px;
   }
 }
+
+.track {
+  background: #7c3aed;
+  color: #fff;
+}

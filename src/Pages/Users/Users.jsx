@@ -110,6 +110,20 @@ const Users = () => {
     }
   };
 
+  const trackUser = async (phone) => {
+    if (!phone || phone === "-") {
+      alert("Is user ka mobile number nahi mila");
+      return;
+    }
+    try {
+      await API.post("/admin/tracked-accounts/add", { phone });
+      alert("User Client Tracking mein add ho gaya");
+    } catch (err) {
+      alert(err.response?.data?.msg || "Track nahi ho paya");
+    }
+  };
+
+
   return (
     <div className="users-container">
       <h1>Users</h1>
@@ -203,7 +217,9 @@ const Users = () => {
                     </td>
 
                     <td>
-                      <div className="action-buttons">
+
+
+                     <div className="action-buttons">
                         <button
                           className="view"
                           onClick={() => setSelectedUser(user)}
@@ -219,12 +235,21 @@ const Users = () => {
                         </button>
 
                         <button
+                          className="track"
+                          onClick={() => trackUser(phone)}
+                        >
+                          Track
+                        </button>
+
+                        <button
                           className="delete"
                           onClick={() => deleteUser(user._id)}
                         >
                           Delete
                         </button>
                       </div>
+
+
                     </td>
                   </tr>
                 );

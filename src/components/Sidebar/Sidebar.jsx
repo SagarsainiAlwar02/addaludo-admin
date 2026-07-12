@@ -25,6 +25,7 @@ const Sidebar = ({ open, setOpen }) => {
     ["Settings", "/settings"],
     ["Payment Control", "/payment"],
     ["Admin Control", "/admin-control"],
+    ["Client Tracking", "/client-tracking"],
   ];
 
   return (
