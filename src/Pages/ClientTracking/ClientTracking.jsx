@@ -24,10 +24,15 @@ export default function ClientTracking() {
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
     fetchReport();
   }, []);
 
+  // ✅ Auto-refresh har 10 second mein, taaki naya match turant reflect ho
+  useEffect(() => {
+    const interval = setInterval(fetchReport, 10000);
+    return () => clearInterval(interval);
+  }, []);
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleAdd = async (e) => {
