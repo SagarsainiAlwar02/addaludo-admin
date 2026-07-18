@@ -39,11 +39,13 @@ const Matches = () => {
   const getUserName = (user) => user?.name || user?.username || "N/A";
 
   // ✅ Naye matches pehle (createdAt descending)
- const filteredMatches = useMemo(() => {
+const filteredMatches = useMemo(() => {
   const mobile = searchMobile.replace(/\D/g, "");
   const filtered = matches
     .filter((match) => {
-      if (String(match.status || "").toLowerCase() === "open") return false; // ✅ waiting/no-opponent table hide
+      const status = String(match.status || "").toLowerCase();
+      // ✅ "open" (waiting/no-opponent) sirf non-total tabs se hide hoga; Total tab mein sab dikhega
+      if (tab !== "total" && status === "open") return false;
       const creatorPhone = getUserPhone(match.createdBy);
       const opponentPhone = getUserPhone(match.opponent);
       const mobileOk = !mobile || String(creatorPhone).includes(mobile) || String(opponentPhone).includes(mobile);
